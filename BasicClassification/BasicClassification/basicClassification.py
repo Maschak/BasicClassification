@@ -80,3 +80,74 @@ model.compile(optimizer = 'adam',
 
 # 3. Schritt: Starte das Training
 model.fit(train_images, train_labels, epochs=5)
+
+# 3.1 Schritt: Speichere die Gewichte
+# model.save_weights('./models/predictBasicCalssification')
+# 3.1.1 Lade die Gewichte
+# model = create_model()
+# model.load_weights('./checkpoints/my_checkpoint')
+# loss,acc = model.evaluate(test_images, test_labels)
+# print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+# 3.2 Schritt: Speichere das gesamte Model
+model.save('./models/predictBasicCalssification.h5')
+# 3.2.1 Lade das Model
+#new_model = keras.models.load_model('my_model.h5')
+#new_model.summary()
+
+# 3.3
+
+# 4. Schritt: Bertung der Genauigkeit
+# 4.1 Das Model wird gegen das TestDatenSet getestet
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print('Test accuracy:', test_acc)
+# Ergebnis: Die Vorhersage ist ein wenig schlechter wie das Ergebnis gegenüber der Trainingsmenge. Dies nennt man auch "Overfitting".
+
+# 5. Schritt: Mache eine Vorhersage
+predictions = model.predict(test_images)
+predictions[0]
+np.argmax(predictions[0])
+
+
+def plot_image(i, predictions_array, true_label, img):
+  predictions_array, true_label, img = predictions_array[i], true_label[i], img[i]
+  plt.grid(False)
+  plt.xticks([])
+  plt.yticks([])
+  
+  plt.imshow(img, cmap=plt.cm.binary)
+
+  predicted_label = np.argmax(predictions_array)
+  if predicted_label == true_label:
+    color = 'blue'
+  else:
+    color = 'red'
+  
+  plt.xlabel("{} {:2.0f}% ({})".format(class_names[predicted_label],
+                                100*np.max(predictions_array),
+                                class_names[true_label]),
+                                color=color)
+
+def plot_value_array(i, predictions_array, true_label):
+  predictions_array, true_label = predictions_array[i], true_label[i]
+  plt.grid(False)
+  plt.xticks([])
+  plt.yticks([])
+  thisplot = plt.bar(range(10), predictions_array, color="#777777")
+  plt.ylim([0, 1]) 
+  predicted_label = np.argmax(predictions_array)
+ 
+  thisplot[predicted_label].set_color('red')
+  thisplot[true_label].set_color('blue')
+
+# 6. Schritt: Visualisiere die Ergebnisse in Kombination mit den Bilder
+num_rows = 5
+num_cols = 3
+num_images = num_rows*num_cols
+plt.figure(figsize=(2*2*num_cols, 2*num_rows))
+for i in range(num_images):
+  plt.subplot(num_rows, 2*num_cols, 2*i+1)
+  plot_image(i, predictions, test_labels, test_images)
+  plt.subplot(num_rows, 2*num_cols, 2*i+2)
+  plot_value_array(i, predictions, test_labels)
+plt.show()
+
